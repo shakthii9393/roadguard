@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>RoadGuard - Report a road hazard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Overpass:wght@400;600;700;800&family=Overpass+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+<div class="app">
+  <aside class="panel">
+    <header class="brand">
+      <h1><svg class="logo" viewBox="0 0 32 32" aria-hidden="true"><path d="M16 2 28 7v9c0 7-5.5 12-12 14C9.500 28 4 23 4 16V7z" fill="#ffc61a"/><path d="M15 8h2l4 18H11z" fill="#14181d"/><path d="M16 11v3m0 3v3m0 3v2" stroke="#ffc61a" stroke-width="1.6" stroke-linecap="round"/></svg><span>Road<em>Guard</em></span></h1>
+      <nav class="nav-bar">
+        <a href="/" class="current">Map</a>
+        <a href="/navigate.html">Navigation</a>
+        <a href="/night-rider.html">🌙 Night Rider</a>
+        <a href="/admin.html">Admin</a>
+      </nav>
+    </header>
+
+        <section class="hero">
+      <h2>See the road <em>before</em> you ride it.</h2>
+      <p>Report potholes and hazards in seconds. Every report is checked by an admin, then used to score your routes for safety.</p>
+      <div class="chips"><span class="chip">AI photo detection</span><span class="chip">Admin-verified</span><span class="chip">Safety-scored routes</span></div>
+    </section>
+
+    <section class="mode-cta">
+      <a class="mode-link" href="/night-rider.html">
+        <strong>🌙 Night Rider Mode</strong>
+        <span>Riding after dark? The camera watches for potholes, obstructions, animals and signals, and tells you out loud.</span>
+      </a>
+    </section>
+
+    <section>
+      <h2>Report a hazard</h2>
+      <div class="tabs" role="tablist">
+        <button type="button" role="tab" id="tab-ai" class="active" aria-selected="true">AI photo detection</button>
+        <button type="button" role="tab" id="tab-manual" aria-selected="false">Report manually</button>
+      </div>
+
+      <!-- Shared location picker, used by both forms -->
+      <label>Location</label>
+      <div class="row">
+        <button type="button" id="gps-btn" class="secondary">Use my location</button>
+        <span id="coords" class="hint">Or tap the map to place a pin.</span>
+      </div>
+
+      <div id="panel-ai" class="tab-panel active">
+        <form id="ai-form">
+          <label for="image">Photo of the road</label>
+          <input id="image" name="image" type="file" accept="image/*" capture="environment" required>
+          <img id="preview" alt="Selected photo preview">
+
+          <label for="ai-description">Details (optional)</label>
+          <textarea id="ai-description" maxlength="1000" placeholder="e.g. Deep pothole in the left lane near the bus stop"></textarea>
+
+          <button class="primary" id="ai-submit-btn" type="submit">Detect and submit report</button>
+        </form>
+      </div>
+
+      <div id="panel-manual" class="tab-panel">
+        <form id="manual-form">
+          <label for="hazard-type">Type of problem</label>
+          <select id="hazard-type" required>
+            <option value="pothole">Pothole</option>
+            <option value="crack">Road damage / crack</option>
+            <option value="construction_barrier">Construction</option>
+            <option value="waterlogging">Waterlogging</option>
+            <option value="debris">Debris</option>
+            <option value="accident">Accident</option>
+            <option value="broken_streetlight">Street-light problem</option>
+            <option value="animal">Animal</option>
+            <option value="other">Other</option>
+          </select>
+
+          <label for="manual-image">Photo (optional)</label>
+          <input id="manual-image" type="file" accept="image/*" capture="environment">
+
+          <label for="manual-description">Details (optional)</label>
+          <textarea id="manual-description" maxlength="1000" placeholder="What's the problem and where exactly?"></textarea>
+
+          <button class="primary" id="manual-submit-btn" type="submit">Submit report</button>
+        </form>
+      </div>
+
+      <div id="message" class="message" role="status"></div>
+    </section>
+
+    <section>
+      <h2>Reported hazards</h2>
+      <div class="filters">
+        <select id="f-type" aria-label="Filter by hazard type">
+          <option value="">All types</option>
+          <option value="pothole">Pothole</option><option value="crack">Crack</option>
+          <option value="waterlogging">Waterlogging</option><option value="debris">Debris</option>
+          <option value="construction_barrier">Construction</option><option value="parked_vehicle">Parked vehicle</option>
+          <option value="animal">Animal</option><option value="pedestrian">Pedestrian</option>
+          <option value="speed_breaker">Speed breaker</option><option value="damaged_sign">Damaged sign</option>
+          <option value="broken_streetlight">Broken streetlight</option><option value="accident">Accident</option>
+          <option value="other">Other</option>
+        </select>
+        <select id="f-verify" aria-label="Filter by verification status">
+          <option value="">All reports</option><option value="Verified">Verified only</option><option value="Pending">Pending only</option>
+        </select>
+      </div>
+      <p class="hint">Verified reports have been confirmed by an admin. Unverified ones are still AI predictions or unconfirmed community reports.</p>
+      <ul id="report-list" class="report-list"></ul>
+    </section>
+  </aside>
+  <main id="map" aria-label="Map of reported hazards"></main>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="/static/js/common.js"></script>
+<script src="/static/js/app.js"></script>
+</body>
+</html>

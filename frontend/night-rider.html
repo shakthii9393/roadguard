@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>RoadGuard - Night Rider Mode</title>
+  <link href="https://fonts.googleapis.com/css2?family=Overpass:wght@400;600;700;800&family=Overpass+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body class="night-body">
+<div class="night-wrap">
+  <header class="night-header">
+    <h1>🌙 Night Rider Mode</h1>
+    <a href="/">Exit</a>
+  </header>
+  <div class="nr-route-strip" id="nr-route-strip"></div>
+
+  <main class="camera-stage">
+    <video id="nr-video" playsinline muted autoplay></video>
+    <canvas id="nr-overlay"></canvas>
+
+    <div class="nr-alert-banner" id="nr-banner" role="alert" aria-live="assertive"></div>
+
+    <!-- Context-aware HUD: filled in by renderHud() in night-rider.js from the server's `context` block -->
+    <section class="nr-hud" id="nr-hud" data-level="LOW" hidden aria-live="polite" aria-label="RoadGuard AI road situation">
+      <div class="hud-brand">ROADGUARD AI</div>
+      <div class="hud-risk"><span id="hud-risk">✅ ROAD CLEAR</span> <small id="hud-score"></small></div>
+      <div class="hud-event" id="hud-event">🛣️ Monitoring the road</div>
+      <dl class="hud-details" id="hud-details" hidden>
+        <div><dt>📏 Distance</dt><dd id="hud-distance">—</dd></div>
+        <div><dt>➡️ Direction</dt><dd id="hud-direction">—</dd></div>
+        <div><dt>🎯 Vehicle path</dt><dd id="hud-path">—</dd></div>
+      </dl>
+      <div class="hud-action-box" id="hud-action-box" hidden>
+        <span class="hud-action-label">Recommended action</span>
+        <strong class="hud-action" id="hud-action"></strong>
+      </div>
+      <p class="hud-voice" id="hud-voice"></p>
+      <ul class="hud-objects" id="hud-objects"></ul>
+      <p class="hud-note">Estimates from one camera. A driving aid, not a substitute for your own judgement.</p>
+    </section>
+
+    <div class="nr-next-card" id="nr-next-card" hidden aria-live="polite">
+      <div class="nr-next-main" id="nr-next-main"></div>
+      <div class="nr-next-sub" id="nr-next-sub"></div>
+      <div class="nr-next-alert" id="nr-next-alert" hidden></div>
+    </div>
+
+    <div class="nr-idle" id="nr-idle">
+      <p>Night Rider Mode watches the road through your camera and calls out hazards by voice, so
+        you don't need to look at the screen. Mount your phone facing the road, then start.</p>
+      <button class="nr-big-btn" id="nr-start-btn" type="button">Start Night Rider Mode</button>
+      <p id="nr-error" class="message error" style="display:none; max-width: 420px;"></p>
+    </div>
+  </main>
+
+  <div class="nr-toolbar">
+    <button class="nr-big-btn stop" id="nr-stop-btn" type="button" hidden>Stop</button>
+    <label class="nr-toggle"><input type="checkbox" id="nr-voice-toggle" checked> Voice alerts</label>
+    <label class="nr-toggle"><input type="checkbox" id="nr-log-toggle" checked> Show alert log</label>
+    <span class="nr-status" id="nr-status"></span>
+  </div>
+
+  <div class="nr-log" id="nr-log-panel">
+    <h2>Recent alerts</h2>
+    <ul id="nr-log-list"></ul>
+  </div>
+</div>
+
+<script src="/static/js/voice.js"></script>
+<script src="/static/js/guidance.js"></script>
+<script src="/static/js/context-ui.js"></script>
+<script src="/static/js/night-rider.js"></script>
+</body>
+</html>

@@ -1,0 +1,22 @@
+# YOLO dataset config. Put images/labels under backend/ml/datasets/roadguard/
+#
+# Indices 0-4 are unchanged from the original file, so any labels you already made
+# still line up. 5-11 are the extra Night Rider classes - you only need to label the
+# ones you want your own model to detect. (Pedestrians, animals and traffic signals
+# can instead come from the general COCO model: set USE_GENERAL_MODEL=true in .env.)
+path: backend/ml/datasets/roadguard
+train: images/train
+val: images/val
+names:
+  0: pothole
+  1: crack
+  2: waterlogging
+  3: damaged_sign
+  4: broken_streetlight
+  5: debris
+  6: construction_barrier
+  7: parked_vehicle
+  8: animal
+  9: pedestrian
+  10: speed_breaker
+  11: traffic_signal

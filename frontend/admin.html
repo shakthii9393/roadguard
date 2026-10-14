@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>RoadGuard - Admin</title>
+  <link href="https://fonts.googleapis.com/css2?family=Overpass:wght@400;600;700;800&family=Overpass+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+<div class="admin">
+  <header class="brand">
+    <h1><svg class="logo" viewBox="0 0 32 32" aria-hidden="true"><path d="M16 2 28 7v9c0 7-5.5 12-12 14C9.500 28 4 23 4 16V7z" fill="#ffc61a"/><path d="M15 8h2l4 18H11z" fill="#14181d"/><path d="M16 11v3m0 3v3m0 3v2" stroke="#ffc61a" stroke-width="1.6" stroke-linecap="round"/></svg><span>Road<em>Guard</em> admin</span></h1>
+    <nav class="nav-bar">
+      <a href="/">Map</a>
+      <a href="/navigate.html">Navigation</a>
+      <a href="/night-rider.html">🌙 Night Rider</a>
+        <a href="/admin.html" class="current">Admin</a>
+    </nav>
+  </header>
+
+  <div id="login" class="login">
+    <h2>Sign in</h2>
+    <label for="username">Username</label>
+    <input id="username" type="text" autocomplete="username">
+    <label for="password">Password</label>
+    <input id="password" type="password" autocomplete="current-password">
+    <button class="primary" id="login-btn">Sign in</button>
+    <div id="login-msg" class="message" role="alert"></div>
+    <p class="hint">No account yet? Run <code>python backend/create_admin.py</code> on the server.</p>
+  </div>
+
+  <div id="dashboard" hidden>
+    <div class="row" style="justify-content: space-between; margin-bottom: 16px;">
+      <span class="hint" id="whoami"></span>
+      <button class="secondary" id="logout-btn" style="flex: 0;">Sign out</button>
+    </div>
+    <div class="stats" id="stats"></div>
+    <div class="filters">
+      <select id="f-status" aria-label="Filter by status">
+        <option value="">All statuses</option><option>Reported</option><option>In Progress</option><option>Resolved</option>
+      </select>
+      <select id="f-severity" aria-label="Filter by severity">
+        <option value="">All severities</option><option>High</option><option>Medium</option><option>Low</option>
+      </select>
+      <select id="f-verify" aria-label="Filter by verification">
+        <option value="">All reports</option><option>Pending</option><option>Verified</option><option>Rejected</option>
+      </select>
+    </div>
+    <table>
+      <thead><tr><th>Photo</th><th>Hazard</th><th>Severity</th><th>Source</th><th>Location</th><th>Date</th><th>Status</th><th>Verification</th><th></th></tr></thead>
+      <tbody id="rows"></tbody>
+    </table>
+
+    <section class="risk-events">
+      <h2>Collision-risk events <span class="hint" id="risk-summary"></span></h2>
+      <p class="hint">HIGH and CRITICAL moments flagged by Night Rider's context engine (newest first).</p>
+      <table>
+        <thead><tr><th>Time</th><th>Event</th><th>Level</th><th>Score</th><th>Action</th><th>Distance</th><th>Location</th></tr></thead>
+        <tbody id="risk-rows"></tbody>
+      </table>
+    </section>
+  </div>
+</div>
+<script src="/static/js/common.js"></script>
+<script src="/static/js/admin.js"></script>
+</body>
+</html>

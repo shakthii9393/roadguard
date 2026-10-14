@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>RoadGuard - Navigation</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Overpass:wght@400;600;700;800&family=Overpass+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+<div class="app">
+  <aside class="panel">
+    <header class="brand">
+      <h1><svg class="logo" viewBox="0 0 32 32" aria-hidden="true"><path d="M16 2 28 7v9c0 7-5.5 12-12 14C9.500 28 4 23 4 16V7z" fill="#ffc61a"/><path d="M15 8h2l4 18H11z" fill="#14181d"/><path d="M16 11v3m0 3v3m0 3v2" stroke="#ffc61a" stroke-width="1.6" stroke-linecap="round"/></svg><span>Road<em>Guard</em></span></h1>
+      <nav class="nav-bar">
+        <a href="/">Map</a>
+        <a href="/navigate.html" class="current">Navigation</a>
+        <a href="/night-rider.html">🌙 Night Rider</a>
+        <a href="/admin.html">Admin</a>
+      </nav>
+    </header>
+
+    <section>
+      <h2>Plan a route</h2>
+      <form id="route-form" autocomplete="off">
+        <label for="start-input">Starting location</label>
+        <div class="location-field">
+          <div class="row">
+            <input id="start-input" type="text" placeholder="Search or use my location" required>
+            <button type="button" id="start-gps-btn" class="secondary" style="flex:0;">📍</button>
+          </div>
+          <ul id="start-suggestions" class="suggestions"></ul>
+        </div>
+
+        <label for="end-input">Destination</label>
+        <div class="location-field">
+          <input id="end-input" type="text" placeholder="Search for a destination" required>
+          <ul id="end-suggestions" class="suggestions"></ul>
+        </div>
+
+        <button class="primary" id="find-btn" type="submit">Find routes</button>
+        <div id="message" class="message" role="status"></div>
+      </form>
+    </section>
+
+    <section id="routes-section" hidden>
+      <h2>Route options</h2>
+      <p class="hint">RoadGuard doesn't pick a route for you - compare and choose.
+        Hazard counts and the safety score only use <strong>admin-verified</strong> reports.</p>
+
+      <div class="mode-picker" role="radiogroup" aria-label="Prioritize">
+        <span class="mode-picker-label">Prioritize:</span>
+        <button type="button" class="mode-btn" data-mode="fastest">Fastest</button>
+        <button type="button" class="mode-btn" data-mode="safest">Safest</button>
+        <button type="button" class="mode-btn selected" data-mode="balanced">Balanced</button>
+      </div>
+
+      <div class="route-compare-wrap">
+        <table class="route-compare">
+          <thead>
+            <tr><th>Route</th><th>Distance</th><th>Time</th><th>Hazards</th><th>Risk</th></tr>
+          </thead>
+          <tbody id="route-compare-body"></tbody>
+        </table>
+      </div>
+
+      <div id="route-list"></div>
+      <button class="primary track-btn" id="track-btn" type="button" hidden>▶ Track this route</button>
+      <p class="hint" id="track-hint" hidden>Starts live navigation from your GPS position: spoken turn-by-turn directions, hazard warnings and automatic re-routing.</p>
+    </section>
+
+    <section id="route-safety-section" hidden>
+      <h2>Route Safety Score</h2>
+      <div class="safety-score-row">
+        <div class="safety-gauge" id="safety-gauge"><span id="safety-score-num">0</span></div>
+        <div>
+          <div class="safety-level" id="safety-level">Low risk</div>
+          <p class="hint" id="safety-notes"></p>
+        </div>
+      </div>
+      <ul class="safety-factors" id="safety-factors"></ul>
+      <p class="hint">A comparison aid built from verified hazard reports, road-condition mix, time of day,
+        route speed and current weather near your route - not a substitute for riding your own judgement.
+        Traffic here is estimated from the route's own speed, not a live feed.</p>
+    </section>
+
+    <section id="guidance-section" hidden>
+      <h2>Voice guidance</h2>
+      <div class="guidance-card" id="guidance-card" aria-live="polite">
+        <div class="g-next" id="g-next">Ready when you are</div>
+        <div class="g-sub" id="g-sub">Directions and hazard warnings are spoken, so you can keep your eyes on the road.</div>
+        <div class="g-alert" id="g-alert" hidden></div>
+      </div>
+      <div class="g-actions">
+        <button class="primary" id="g-start" type="button">▶ Track route</button>
+        <button class="secondary" id="g-stop" type="button" hidden>Stop guidance</button>
+      </div>
+      <label class="toggle-row"><input type="checkbox" id="g-voice" checked> Speak directions and hazard warnings</label>
+      <p class="hint" id="g-note" role="status"></p>
+      <a class="night-link" id="g-night" href="/night-rider.html">🌙 Ride with the Night Rider camera on this route</a>
+      <button class="link-btn" id="g-demo" type="button">Try a demo drive (simulated GPS)</button>
+    </section>
+
+    <section id="route-hazards-section" hidden>
+      <h2>Hazards on this route</h2>
+      <ul id="route-hazard-list" class="route-hazard-list"></ul>
+    </section>
+
+    <section id="steps-section" hidden class="steps-panel">
+      <h2>Turn-by-turn</h2>
+      <ol id="steps-list"></ol>
+    </section>
+  </aside>
+  <main class="map-stage" id="map-stage" aria-label="Route map"><div id="nav-map"></div></main>
+</div>
+
+<!-- Live navigation overlay (shown while tracking) -->
+<div id="nav-hud" hidden>
+  <div class="hud-top">
+    <div class="hud-arrow" id="hud-arrow">↑</div>
+    <div class="hud-text">
+      <div class="hud-dist" id="hud-dist">--</div>
+      <div class="hud-road" id="hud-road">Finding your position…</div>
+    </div>
+    <button type="button" class="hud-mute" id="hud-mute" aria-label="Mute voice guidance">🔊</button>
+  </div>
+  <div class="hud-alert" id="hud-alert" role="alert" hidden></div>
+  <div class="hud-status" id="hud-status" role="status" hidden>
+    <span id="hud-status-text"></span>
+    <button type="button" id="hud-demo">▶ Try demo drive</button>
+  </div>
+  <div class="hud-tools">
+    <button type="button" class="hud-tool" id="hud-compass" aria-label="Switch between heading-up and north-up map">🧭 Heading-up</button>
+    <button type="button" class="hud-tool" id="hud-recenter" hidden>◎ Re-center</button>
+  </div>
+  <div class="hud-bottom">
+    <div class="hud-stat"><b id="hud-eta">--</b><span>arrival</span></div>
+    <div class="hud-stat"><b id="hud-time">--</b><span>min left</span></div>
+    <div class="hud-stat"><b id="hud-left">--</b><span>to go</span></div>
+    <button type="button" class="hud-exit" id="hud-exit">Exit</button>
+  </div>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="/static/js/common.js"></script>
+<script src="/static/js/voice.js"></script>
+<script src="/static/js/guidance.js"></script>
+<script src="/static/js/tracking.js"></script>
+<script src="/static/js/navigate.js"></script>
+</body>
+</html>
